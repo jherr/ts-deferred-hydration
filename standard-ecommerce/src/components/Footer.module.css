@@ -1,0 +1,57 @@
+.footer {
+  margin-top: 5rem;
+  border-top: 1px solid var(--line);
+  padding: 2.5rem 1rem 3.5rem;
+  color: var(--sea-ink-soft);
+}
+
+.footerInner {
+  composes: pageWrap from "../shared.module.css";
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: center;
+}
+
+@media (min-width: 40rem) {
+  .footerInner {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+.copy {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.kicker {
+  composes: islandKicker from "../shared.module.css";
+  margin: 0;
+}
+
+.socials {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.socialBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  color: var(--sea-ink-soft);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.socialBtn:hover {
+  background-color: var(--link-bg-hover);
+  color: var(--sea-ink);
+}

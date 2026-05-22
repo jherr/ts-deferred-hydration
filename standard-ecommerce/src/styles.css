@@ -1,13 +1,10 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap");
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
-@theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-}
+/* Design tokens */
 
 :root {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
   --sea-ink: #173a40;
   --sea-ink-soft: #416166;
   --lagoon: #4fb8b2;
@@ -84,7 +81,11 @@
   }
 }
 
-* {
+/* Minimal modern CSS reset (replaces former Tailwind Preflight) */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -94,10 +95,59 @@ body,
   min-height: 100%;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding-left: 0;
+  list-style: none;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Global body chrome */
+
 body {
   margin: 0;
   color: var(--sea-ink);
   font-family: var(--font-sans);
+  line-height: 1.5;
   background-color: var(--bg-base);
   background:
     radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
@@ -141,6 +191,10 @@ a {
   text-decoration-color: rgba(50, 143, 151, 0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
 }
 
 a:hover {
@@ -163,214 +217,3 @@ pre code {
   font-size: inherit;
   color: inherit;
 }
-
-.page-wrap {
-  width: min(1080px, calc(100% - 2rem));
-  margin-inline: auto;
-}
-
-.display-title {
-  font-family: "Fraunces", Georgia, serif;
-}
-
-.island-shell {
-  border: 1px solid var(--line);
-  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 22px 44px rgba(30, 90, 72, 0.1),
-    0 6px 18px rgba(23, 58, 64, 0.08);
-  backdrop-filter: blur(4px);
-}
-
-.feature-card {
-  background: linear-gradient(165deg, color-mix(in oklab, var(--surface-strong) 93%, white 7%), var(--surface));
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 18px 34px rgba(30, 90, 72, 0.1),
-    0 4px 14px rgba(23, 58, 64, 0.06);
-}
-
-.feature-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--lagoon-deep) 35%, var(--line));
-}
-
-button,
-.island-shell,
-a {
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease,
-    transform 180ms ease;
-}
-
-.island-kicker {
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 700;
-  font-size: 0.69rem;
-  color: var(--kicker);
-}
-
-.nav-link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  color: var(--sea-ink-soft);
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  width: 100%;
-  height: 2px;
-  transform: scaleX(0);
-  transform-origin: left;
-  background: linear-gradient(90deg, var(--lagoon), #7ed3bf);
-  transition: transform 170ms ease;
-}
-
-.nav-link:hover,
-.nav-link.is-active {
-  color: var(--sea-ink);
-}
-
-.nav-link:hover::after,
-.nav-link.is-active::after {
-  transform: scaleX(1);
-}
-
-@media (max-width: 640px) {
-  .nav-link::after {
-    bottom: -4px;
-  }
-}
-
-.site-footer {
-  border-top: 1px solid var(--line);
-  background: color-mix(in oklab, var(--header-bg) 84%, transparent 16%);
-}
-
-.rise-in {
-  animation: rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.carousel-track {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--lagoon-deep) 35%, transparent) transparent;
-  scroll-padding-inline: 0.5rem;
-}
-
-.carousel-track::-webkit-scrollbar {
-  height: 8px;
-}
-
-.carousel-track::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.carousel-track::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--lagoon-deep) 30%, transparent);
-  border-radius: 999px;
-}
-
-.carousel-card:focus-visible {
-  outline: 2px solid var(--lagoon-deep);
-  outline-offset: 3px;
-}
-
-.modal-card {
-  animation: modal-rise 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes modal-rise {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.product-canvas {
-  background: var(--product-warm);
-}
-
-.product-canvas-soft {
-  background: var(--product-warm-soft);
-}
-
-.product-canvas-card {
-  background: var(--product-warm-card);
-}
-
-.product-image-blend {
-  filter: drop-shadow(0 18px 22px rgba(10, 28, 32, 0.22));
-}
-
-:root[data-theme="dark"] .product-image-blend {
-  filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.55));
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .product-image-blend {
-    filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.55));
-  }
-}
-
-.product-canvas::after,
-.product-canvas-soft::after,
-.product-canvas-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.7;
-  mix-blend-mode: soft-light;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.7), transparent 55%),
-    radial-gradient(circle at 75% 85%, rgba(245, 180, 97, 0.5), transparent 60%);
-}
-
-:root[data-theme="dark"] .product-canvas::after,
-:root[data-theme="dark"] .product-canvas-soft::after,
-:root[data-theme="dark"] .product-canvas-card::after {
-  opacity: 0.4;
-  background:
-    radial-gradient(circle at 25% 18%, rgba(110, 200, 154, 0.25), transparent 55%),
-    radial-gradient(circle at 78% 82%, rgba(96, 215, 207, 0.18), transparent 60%);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .product-canvas::after,
-  :root:not([data-theme="light"]) .product-canvas-soft::after,
-  :root:not([data-theme="light"]) .product-canvas-card::after {
-    opacity: 0.4;
-    background:
-      radial-gradient(circle at 25% 18%, rgba(110, 200, 154, 0.25), transparent 55%),
-      radial-gradient(circle at 78% 82%, rgba(96, 215, 207, 0.18), transparent 60%);
-  }
-}
-
