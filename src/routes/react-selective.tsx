@@ -7,12 +7,5 @@ export const Route = createFileRoute('/react-selective')({
 })
 
 function ReactSelectiveRoute() {
-  return (
-    <ProductPage
-      variantKicker="Variant 2 of 3"
-      variantTitle="React.lazy + Suspense (selective hydration)"
-      variantBlurb="The carousel chunk is code-split. React preserves the SSR HTML, then hydrates the boundary on its own schedule — bumping it to the front of the queue if the user clicks before hydration."
-      CarouselSlot={ReactSelectiveHydration}
-    />
-  )
+  return <ProductPage CarouselSlot={ReactSelectiveHydration} />
 }

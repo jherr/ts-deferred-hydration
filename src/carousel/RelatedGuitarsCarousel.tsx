@@ -49,7 +49,7 @@ export default function RelatedGuitarsCarousel({ guitars, onSelect }: Props) {
       <div className={styles.heading}>
         <div className={styles.headingCopy}>
           <p className={styles.kicker}>More From The Collection</p>
-          <h2 className={styles.title}>Customers Also Checked Out</h2>
+          <h2 className={styles.title}>Guitars You Might Also Like</h2>
           <p className={styles.subtitle}>
             Hand-picked island-themed acoustics — all priced to fly off the
             shelves and onto your wall.

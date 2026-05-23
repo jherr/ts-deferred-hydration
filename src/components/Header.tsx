@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router'
 import clsx from 'clsx'
-import { ShoppingBag } from 'lucide-react'
 import styles from './Header.module.css'
 
 const VARIANT_LINKS = [
@@ -10,8 +9,6 @@ const VARIANT_LINKS = [
 ] as const
 
 export default function Header() {
-  const cartCount = 0
-
   return (
     <header className={styles.header}>
       <nav className={styles.nav}>
@@ -21,7 +18,6 @@ export default function Header() {
           </span>
           <span className={styles.brandText}>
             <span className={styles.brandTitle}>Island Vibes</span>
-            <span className={styles.brandSub}>Deferred Hydration Demo</span>
           </span>
         </Link>
 
@@ -48,21 +44,6 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-        </div>
-
-        <div className={styles.actions}>
-          <button
-            type="button"
-            aria-label={`Shopping cart (${cartCount} items)`}
-            title="Shopping cart"
-            className={styles.cartBtn}
-          >
-            <ShoppingBag size={18} aria-hidden="true" />
-            <span className={styles.cartLabel}>Cart</span>
-            <span className={styles.cartBadge} aria-hidden="true">
-              {cartCount}
-            </span>
-          </button>
         </div>
       </nav>
     </header>

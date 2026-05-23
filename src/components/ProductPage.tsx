@@ -1,7 +1,6 @@
 import { useState, type ComponentType } from 'react'
 import { Link } from '@tanstack/react-router'
 import {
-  ArrowLeft,
   Heart,
   Leaf,
   ShieldCheck,
@@ -25,35 +24,15 @@ type CarouselSlotProps = {
 }
 
 type Props = {
-  variantTitle: string
-  variantKicker: string
-  variantBlurb: string
   CarouselSlot: ComponentType<CarouselSlotProps>
 }
 
-export default function ProductPage({
-  variantTitle,
-  variantKicker,
-  variantBlurb,
-  CarouselSlot,
-}: Props) {
+export default function ProductPage({ CarouselSlot }: Props) {
   const [selectedGuitar, setSelectedGuitar] = useState<Guitar | null>(null)
   const product = PRIMARY_GUITAR
 
   return (
     <main className={styles.main}>
-      <div className={styles.variantBanner}>
-        <div className={styles.variantBannerCopy}>
-          <p className={styles.variantKicker}>{variantKicker}</p>
-          <h2 className={styles.variantTitle}>{variantTitle}</h2>
-          <p className={styles.variantBlurb}>{variantBlurb}</p>
-        </div>
-        <Link to="/" className={styles.backHome}>
-          <ArrowLeft size={14} aria-hidden="true" />
-          Back to overview
-        </Link>
-      </div>
-
       <nav className={styles.breadcrumb} aria-label="Breadcrumb">
         <Link to="/" className={styles.breadcrumbLink}>
           Home
@@ -65,6 +44,13 @@ export default function ProductPage({
         <span aria-hidden="true">/</span>
         <span className={styles.breadcrumbCurrent}>{product.name}</span>
       </nav>
+
+      <section aria-label="Related guitars">
+        <CarouselSlot
+          guitars={RELATED_GUITARS}
+          onSelect={setSelectedGuitar}
+        />
+      </section>
 
       <section className={styles.heroCard}>
         <div className={styles.heroBlobTopLeft} />
@@ -191,13 +177,6 @@ export default function ProductPage({
             <p className={styles.specValue}>{value}</p>
           </article>
         ))}
-      </section>
-
-      <section aria-label="Related guitars">
-        <CarouselSlot
-          guitars={RELATED_GUITARS}
-          onSelect={setSelectedGuitar}
-        />
       </section>
 
       <section id="reviews" className={styles.reviewsSection}>

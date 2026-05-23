@@ -1,8 +1,12 @@
 # Deferred Hydration: TanStack vs. React-only
 
 A single TanStack Start app that demos **three** different ways to hydrate the
-same below-the-fold "Customers Also Checked Out" carousel on an e-commerce
-product page.
+same "Guitars You Might Also Like" carousel on an e-commerce product page.
+
+The carousel is deliberately placed **above the fold**, directly under the
+breadcrumb and above the featured product. That's not a real e-commerce layout
+choice — it's so the carousel is the first thing you see on each route, which
+makes the hydration timing obvious on camera without scrolling.
 
 The point of the comparison is to isolate **one variable** — the hydration
 primitive — while keeping the UI, styles, data, and component graph identical
@@ -43,6 +47,8 @@ ts-deferred-hydration/                  project root (single TanStack Start app)
     ├── components/
     │   ├── GuitarModal.tsx
     │   ├── Header.tsx
+    │   ├── HydrationChip.tsx            shared display-only status pill
+    │   ├── HydrationChip.module.css
     │   └── ProductPage.tsx              shared product page; takes a CarouselSlot
     ├── data/
     │   └── guitars.ts                   PRIMARY_GUITAR + RELATED_GUITARS fixtures
@@ -61,6 +67,21 @@ The three hydration-variant files are intentionally tiny — they're just
 wrappers around the same `RelatedGuitarsCarousel`, plus a small status chip
 that flips from `dehydrated` to `hydrated` so you can see what's happening on
 screen.
+
+The chip itself is a shared, display-only `HydrationChip` component in
+`src/components/`. Each variant owns the hydration state (the `useState` and
+the `onHydrated` callback) and passes the resulting `state` + `detail` into
+the chip:
+
+```tsx
+<HydrationChip
+  state={hydrated ? 'hydrated' : 'dehydrated'}
+  detail={hydrated ? undefined : 'waiting for intent'}
+/>
+```
+
+Renders `Carousel: dehydrated (waiting for intent)` while waiting, then
+`Carousel: hydrated` once the chip's state prop flips.
 
 ---
 
@@ -93,18 +114,19 @@ Builds the app (Vite + Nitro) into `.output/`.
 ## What's actually being demonstrated
 
 The shared baseline is a product page for the **"Tradewind Sunset Dreadnought"**
-acoustic guitar. Below the hero and spec cards, there's a horizontally-scrolling
-**"Customers Also Checked Out"** carousel of four related guitars, each
-clickable to open a detail modal.
+acoustic guitar. Directly under the breadcrumb (and intentionally above the
+hero, see note above), there's a horizontally-scrolling **"Guitars You Might
+Also Like"** carousel of four related guitars, each clickable to open a detail
+modal.
 
-The carousel is the prototypical "below-the-fold, heavy, not-needed-on-first-paint"
-component:
+The carousel is a stand-in for any "heavy, not-needed-immediately" component
+you'd want to defer:
 
 - Four product cards with images, ratings, badges, and click handlers.
 - `useEffect` + scroll/resize listeners to manage scroll-button enabled state.
 - Pulls in `lucide-react` icons (`ChevronLeft`, `ChevronRight`, `Star`).
-- Far enough down the page that most users on a standard viewport never see it
-  on initial paint.
+- Big enough on its own to ship as its own chunk and show a noticeable
+  bundle-size delta between `/regular` and the two deferred variants.
 
 Each variant shows a **status chip** in the top-right corner of the carousel
 section so you can see hydration state on screen:
@@ -213,6 +235,81 @@ What you're looking at:
   fully hydrated and React owns the DOM.
 - **Chip state** — flips from `dehydrated (waiting for intent)` to
   `hydrated` only when intent triggers.
+
+---
+
+## Production gotcha: SSR + CSS Modules + `React.lazy`
+
+There's a real, visible bug in the production build of the
+`/react-selective` route. It shows up only in `pnpm build` + `node
+.output/server/index.mjs` — dev mode (`pnpm dev`) hides it because Vite's
+dev server inlines all CSS modules into a single per-route aggregator.
+
+The carousel is the only component imported via `React.lazy`. In the prod
+build, Vite splits it into its own JS chunk **and** its own CSS chunk
+(`RelatedGuitarsCarousel-*.css`). The SSR pipeline renders the carousel
+HTML into the streamed response using hashed class names from that CSS
+module — but does **not** emit a `<link rel="stylesheet">` for the
+carousel's CSS chunk in the document `<head>`.
+
+Inspect the SSR `<head>` of each route in production:
+
+| Route | Carousel CSS chunk in `<head>`? | Carousel JS preload? |
+| --- | --- | --- |
+| `/regular` | ✓ `RelatedGuitarsCarousel-*.css` | ✓ preloaded |
+| `/react-selective` | ✗ **missing** | ✗ (deferred — correct) |
+| `/tanstack-deferred` | ✓ `RelatedGuitarsCarousel-*.css` (hoisted by `<Hydrate>`) | ✗ (deferred — correct) |
+
+Result on `/react-selective`: the carousel HTML lands in the document with
+class names that have no corresponding CSS until the lazy JS chunk loads
+and triggers a runtime stylesheet injection. Between SSR paint and lazy
+chunk load, the carousel renders **completely unstyled** — no rounded card,
+no padding, no grid, no scroll buttons, cards collapsed into a vertical
+flow.
+
+You can reproduce it deterministically by disabling JavaScript in DevTools
+(so you only see the SSR output, no runtime CSS injection) and comparing
+`/regular` vs `/react-selective`. The contrast is dramatic and makes a
+great on-camera moment.
+
+### Why this happens
+
+React itself has no built-in way to tell the framework *"the CSS module I
+just imported belongs to a chunk that's needed for the HTML I just
+rendered, please hoist its `<link>` into the document head."* Frameworks
+have to instrument the bundler's CSS manifest themselves to map
+server-rendered chunks → their CSS deps.
+
+- Next.js solves it via Webpack/Turbopack flight manifests.
+- TanStack Start solves it for `<Hydrate>` boundaries (which is why
+  `/tanstack-deferred` ships the carousel CSS even though it withholds the
+  JS preload), but **does not** trace CSS deps for vanilla `React.lazy`
+  subtrees.
+
+So this is a second tax on the pure-React deferral story, on top of the
+"order, not whether" caveat. The React-only path gets you the bundle
+split, but in production you also have to either accept a styling cliff
+or work around it manually.
+
+### Workarounds
+
+1. **Hoist the CSS import out of the lazy module.** Import
+   `RelatedGuitarsCarousel.module.css` from a non-lazy parent (e.g.,
+   `ReactSelectiveHydration.tsx` or `ProductPage.tsx`). The CSS ends up in
+   the route's eager CSS graph and gets `<link>`-hoisted into the head;
+   the lazy chunk's own CSS import becomes a no-op at runtime. Loses some
+   of the bundle-trimming purity but it's a one-line fix.
+2. **Manually emit a `<link rel="stylesheet">` for the chunk** in
+   `__root.tsx` or the variant. Hacky and hardcodes a Vite output hash.
+3. **File it as a TanStack Start issue** — the framework arguably should
+   trace the CSS deps of any module rendered server-side, not just
+   `<Hydrate>` boundaries.
+
+The fix from option 1 is parked **commented-out** at the top of
+`src/hydration-variants/ReactSelectiveHydration.tsx`. Uncomment it on
+camera, rebuild (`pnpm build && node .output/server/index.mjs`), and
+the carousel goes from "unstyled until the lazy chunk lands" to "styled
+the moment the SSR HTML paints."
 
 ---
 

@@ -68,9 +68,10 @@ function HomeRoute() {
           Three ways to hydrate the same carousel
         </h1>
         <p className={styles.lede}>
-          Each variant renders the same product page with the same below-the-fold
-          “Customers Also Checked Out” carousel — the only thing that changes is
-          how (and when) that carousel hydrates on the client.
+          Each variant renders the same product page with the same
+          “Guitars You Might Also Like” carousel hoisted above the fold — the
+          only thing that changes is how (and when) that carousel hydrates on
+          the client.
         </p>
         <p className={styles.lede}>
           Open one, watch the status chip in the top-right of the carousel, and
