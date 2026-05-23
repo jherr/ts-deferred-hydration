@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
+import HydrationChip from '../components/HydrationChip'
 import type { Guitar } from '../data/guitars'
 import styles from './HydrationVariant.module.css'
 
@@ -29,13 +30,10 @@ export default function ReactSelectiveHydration({ guitars, onSelect }: Props) {
 
   return (
     <div className={styles.wrap}>
-      <p
-        className={styles.chip}
-        data-state={hydrated ? 'hydrated' : 'dehydrated'}
-      >
-        Carousel:{' '}
-        {hydrated ? 'hydrated' : 'dehydrated (selective hydration)'}
-      </p>
+      <HydrationChip
+        state={hydrated ? 'hydrated' : 'dehydrated'}
+        detail={hydrated ? undefined : 'selective hydration'}
+      />
 
       {/* fallback={null} is intentional: streaming SSR inlines the carousel
           HTML on first load, so users see it immediately. */}

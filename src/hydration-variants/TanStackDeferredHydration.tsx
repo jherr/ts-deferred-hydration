@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Hydrate } from '@tanstack/react-start'
 import { interaction, visible } from '@tanstack/react-start/hydration'
 import RelatedGuitarsCarousel from '../carousel/RelatedGuitarsCarousel'
+import HydrationChip from '../components/HydrationChip'
 import type { Guitar } from '../data/guitars'
 import styles from './HydrationVariant.module.css'
 
@@ -18,13 +19,10 @@ export default function TanStackDeferredHydration({
 
   return (
     <div className={styles.wrap}>
-      <p
-        className={styles.chip}
-        data-state={hydrated ? 'hydrated' : 'dehydrated'}
-      >
-        Carousel:{' '}
-        {hydrated ? 'hydrated' : 'dehydrated (waiting for intent)'}
-      </p>
+      <HydrationChip
+        state={hydrated ? 'hydrated' : 'dehydrated'}
+        detail={hydrated ? undefined : 'waiting for intent'}
+      />
 
       <Hydrate
         when={interaction({ events: ['focusin', 'pointerenter', 'click'] })}

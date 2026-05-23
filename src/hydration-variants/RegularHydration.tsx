@@ -1,4 +1,5 @@
 import RelatedGuitarsCarousel from '../carousel/RelatedGuitarsCarousel'
+import HydrationChip from '../components/HydrationChip'
 import type { Guitar } from '../data/guitars'
 import styles from './HydrationVariant.module.css'
 
@@ -15,9 +16,7 @@ type Props = {
 export default function RegularHydration({ guitars, onSelect }: Props) {
   return (
     <div className={styles.wrap}>
-      <p className={styles.chip} data-state="hydrated">
-        Carousel: hydrated (eager)
-      </p>
+      <HydrationChip state="hydrated" detail="eager" />
       <RelatedGuitarsCarousel guitars={guitars} onSelect={onSelect} />
     </div>
   )

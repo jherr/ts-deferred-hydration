@@ -1,0 +1,25 @@
+.chip {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 5;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid var(--chip-line);
+  background: var(--chip-bg);
+  color: var(--sea-ink);
+  pointer-events: none;
+}
+
+.chip[data-state="dehydrated"] {
+  opacity: 0.7;
+}
+
+.chip[data-state="hydrated"] {
+  background: color-mix(in oklab, var(--lagoon-deep) 18%, var(--chip-bg));
+  color: var(--lagoon-deep);
+}
