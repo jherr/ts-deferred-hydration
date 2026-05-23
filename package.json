@@ -3,12 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "pnpm -r --parallel --stream dev",
-    "dev:standard": "pnpm --filter @app/standard-ecommerce dev",
-    "dev:react": "pnpm --filter @app/react-deferred-hydration dev",
-    "dev:ts": "pnpm --filter @app/ts-deferred-hydration dev",
-    "build": "pnpm -r build",
-    "test": "pnpm -r test"
+    "dev": "pnpm --filter @app/ts-deferred-hydration dev",
+    "build": "pnpm --filter @app/ts-deferred-hydration build",
+    "preview": "pnpm --filter @app/ts-deferred-hydration preview",
+    "test": "pnpm --filter @app/ts-deferred-hydration test"
   },
   "packageManager": "pnpm@9.0.0"
 }

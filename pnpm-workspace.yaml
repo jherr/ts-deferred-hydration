@@ -1,6 +1,4 @@
 packages:
-  - standard-ecommerce
-  - react-deferred-hydration
   - ts-deferred-hydration
 
 onlyBuiltDependencies:

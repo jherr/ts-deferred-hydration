@@ -1,7 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import clsx from 'clsx'
-import { Search, ShoppingBag } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
 import styles from './Header.module.css'
+
+const VARIANT_LINKS = [
+  { to: '/regular', label: 'Regular' },
+  { to: '/react-selective', label: 'React Selective' },
+  { to: '/tanstack-deferred', label: 'TanStack <Hydrate>' },
+] as const
 
 export default function Header() {
   const cartCount = 0
@@ -15,7 +21,7 @@ export default function Header() {
           </span>
           <span className={styles.brandText}>
             <span className={styles.brandTitle}>Island Vibes</span>
-            <span className={styles.brandSub}>TS Deferred Hydration</span>
+            <span className={styles.brandSub}>Deferred Hydration Demo</span>
           </span>
         </Link>
 
@@ -23,27 +29,28 @@ export default function Header() {
           <Link
             to="/"
             className={styles.navLink}
+            activeOptions={{ exact: true }}
             activeProps={{
               className: clsx(styles.navLink, styles.navLinkActive),
             }}
           >
-            Shop
+            Overview
           </Link>
-          <a href="#collection" className={styles.navLink}>
-            Collection
-          </a>
+          {VARIANT_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={styles.navLink}
+              activeProps={{
+                className: clsx(styles.navLink, styles.navLinkActive),
+              }}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
 
         <div className={styles.actions}>
-          <button
-            type="button"
-            aria-label="Search Island Vibes (coming soon)"
-            title="Search (coming soon)"
-            className={styles.searchBtn}
-          >
-            <Search size={20} aria-hidden="true" />
-          </button>
-
           <button
             type="button"
             aria-label={`Shopping cart (${cartCount} items)`}
