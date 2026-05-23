@@ -28,11 +28,11 @@ pnpm dev
 
 `pnpm dev` uses [`concurrently`](https://www.npmjs.com/package/concurrently) to launch the three Vite dev servers in parallel. Each app's `dev` script hard-codes `--port 3000`, so Vite's "port in use, trying another" behavior cascades them to **3000, 3001, 3002** in whatever order they finish booting. Watch the prefixed log lines or scroll up in the terminal to see which app claimed which port:
 
-```
-[standard]   ➜  Local:   http://localhost:3000/
-[react]      ➜  Local:   http://localhost:3001/
-[ts]         ➜  Local:   http://localhost:3002/
-```
+| Prefix | URL | App |
+| --- | --- | --- |
+| `[standard]` | http://localhost:3000/ | Baseline eager-hydration build (`standard-ecommerce/`) |
+| `[react]` | http://localhost:3001/ | `React.lazy` + `<Suspense>` selective-hydration build (`react-deferred-hydration/`) |
+| `[ts]` | http://localhost:3002/ | TanStack `<Hydrate when={...} prefetch={...} />` build (`ts-deferred-hydration/`) |
 
 (Order is racy across boots — if you need a stable assignment, run them individually.)
 

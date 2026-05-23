@@ -1,5 +1,5 @@
-import { Suspense, lazy, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { Suspense, lazy, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   Heart,
   Leaf,
@@ -8,29 +8,29 @@ import {
   Star,
   Truck,
   Waves,
-} from 'lucide-react'
-import GuitarModal from '../components/GuitarModal'
+} from "lucide-react";
+import GuitarModal from "../components/GuitarModal";
 import {
   PRIMARY_GUITAR,
   RELATED_GUITARS,
   formatPrice,
   type Guitar,
-} from '../data/guitars'
-import styles from './index.module.css'
+} from "../data/guitars";
+import styles from "./index.module.css";
 
 // Code-split the carousel into its own chunk. React preserves the SSR'd HTML
 // while this chunk is in flight, and selective hydration deprioritizes it
 // relative to higher-priority work elsewhere on the page.
 const RelatedGuitarsCarousel = lazy(
-  () => import('../components/RelatedGuitarsCarousel'),
-)
+  () => import("../components/RelatedGuitarsCarousel"),
+);
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute("/")({ component: App });
 
 function App() {
-  const [selectedGuitar, setSelectedGuitar] = useState<Guitar | null>(null)
-  const [carouselHydrated, setCarouselHydrated] = useState(false)
-  const product = PRIMARY_GUITAR
+  const [selectedGuitar, setSelectedGuitar] = useState<Guitar | null>(null);
+  const [carouselHydrated, setCarouselHydrated] = useState(false);
+  const product = PRIMARY_GUITAR;
 
   return (
     <main className={styles.main}>
@@ -82,7 +82,7 @@ function App() {
                     size={18}
                     aria-hidden="true"
                     fill={
-                      i < Math.round(product.rating) ? 'currentColor' : 'none'
+                      i < Math.round(product.rating) ? "currentColor" : "none"
                     }
                     strokeWidth={1.5}
                   />
@@ -160,10 +160,10 @@ function App() {
       <section className={styles.specsRow} aria-label="Product specs">
         {(
           [
-            ['Body Shape', product.bodyShape],
-            ['Top Material', product.topWood],
-            ['Finish', product.finish],
-            ['Artwork', product.artwork],
+            ["Body Shape", product.bodyShape],
+            ["Top Material", product.topWood],
+            ["Finish", product.finish],
+            ["Artwork", product.artwork],
           ] as const
         ).map(([label, value], index) => (
           <article
@@ -180,10 +180,10 @@ function App() {
       <section className={styles.carouselWrap} aria-label="Related guitars">
         <p
           className={styles.hydrationChip}
-          data-state={carouselHydrated ? 'hydrated' : 'dehydrated'}
+          data-state={carouselHydrated ? "hydrated" : "dehydrated"}
         >
-          Carousel:{' '}
-          {carouselHydrated ? 'hydrated' : 'dehydrated (selective hydration)'}
+          Carousel:{" "}
+          {carouselHydrated ? "hydrated" : "dehydrated (selective hydration)"}
         </p>
 
         {/* fallback={null} is intentional: streaming SSR inlines the carousel
@@ -194,8 +194,8 @@ function App() {
             guitars={RELATED_GUITARS}
             onSelect={setSelectedGuitar}
             onHydrated={() => {
-              console.log('[react-lazy] RelatedGuitarsCarousel hydrated')
-              setCarouselHydrated(true)
+              console.log("[react-lazy] RelatedGuitarsCarousel hydrated");
+              setCarouselHydrated(true);
             }}
           />
         </Suspense>
@@ -204,7 +204,7 @@ function App() {
       <section
         id="reviews"
         className={styles.reviewsSection}
-        style={{ animationDelay: '260ms' }}
+        style={{ animationDelay: "260ms" }}
       >
         <div className={styles.reviewsHeader}>
           <Leaf
@@ -217,16 +217,16 @@ function App() {
         <div className={styles.reviewsGrid}>
           {[
             {
-              q: '“Hung it on the wall and three guests asked where I got it.”',
-              a: 'Mira S. · Verified Buyer',
+              q: "“Hung it on the wall and three guests asked where I got it.”",
+              a: "Mira S. · Verified Buyer",
             },
             {
-              q: '“Great first guitar for my kid. Looks insane, sounds fine — totally fair at $299.”',
-              a: 'Devon R. · Verified Buyer',
+              q: "“Great first guitar for my kid. Looks insane, sounds fine — totally fair at $299.”",
+              a: "Devon R. · Verified Buyer",
             },
             {
-              q: '“Genuine porch-strumming, sunset-watching, drink-in-hand energy.”',
-              a: 'Kaipo H. · Verified Buyer',
+              q: "“Genuine porch-strumming, sunset-watching, drink-in-hand energy.”",
+              a: "Kaipo H. · Verified Buyer",
             },
           ].map(({ q, a }) => (
             <blockquote key={a} className={styles.reviewCard}>
@@ -242,5 +242,5 @@ function App() {
         onClose={() => setSelectedGuitar(null)}
       />
     </main>
-  )
+  );
 }

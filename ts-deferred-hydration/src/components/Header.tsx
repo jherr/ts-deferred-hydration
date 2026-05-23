@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import clsx from 'clsx'
 import { Search, ShoppingBag } from 'lucide-react'
-import ThemeToggle from './ThemeToggle'
 import styles from './Header.module.css'
 
 export default function Header() {
@@ -44,8 +43,6 @@ export default function Header() {
           >
             <Search size={20} aria-hidden="true" />
           </button>
-
-          <ThemeToggle />
 
           <button
             type="button"
