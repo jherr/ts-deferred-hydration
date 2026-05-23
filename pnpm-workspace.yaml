@@ -1,6 +1,0 @@
-packages:
-  - ts-deferred-hydration
-
-onlyBuiltDependencies:
-  - esbuild
-  - lightningcss

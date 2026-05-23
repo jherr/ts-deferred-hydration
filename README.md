@@ -25,35 +25,36 @@ wrapper renders the carousel.
 ## Project layout
 
 ```
-ts-deferred-hydration/                  workspace root
-├── package.json                         root scripts (forward to the single app)
-├── pnpm-workspace.yaml
+ts-deferred-hydration/                  project root (single TanStack Start app)
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
 ├── README.md                            this file
-└── ts-deferred-hydration/               the actual TanStack Start app
-    └── src/
-        ├── carousel/                    the carousel component being deferred
-        │   ├── RelatedGuitarsCarousel.tsx
-        │   └── RelatedGuitarsCarousel.module.css
-        ├── hydration-variants/          one wrapper per hydration strategy
-        │   ├── RegularHydration.tsx
-        │   ├── ReactSelectiveHydration.tsx
-        │   ├── TanStackDeferredHydration.tsx
-        │   └── HydrationVariant.module.css
-        ├── components/
-        │   ├── GuitarModal.tsx
-        │   ├── Header.tsx
-        │   └── ProductPage.tsx          shared product page; takes a CarouselSlot
-        ├── data/
-        │   └── guitars.ts               PRIMARY_GUITAR + RELATED_GUITARS fixtures
-        ├── routes/
-        │   ├── __root.tsx
-        │   ├── index.tsx                landing page with cards for each variant
-        │   ├── regular.tsx              /regular  → ProductPage + RegularHydration
-        │   ├── react-selective.tsx      /react-selective → ProductPage + ReactSelectiveHydration
-        │   └── tanstack-deferred.tsx    /tanstack-deferred → ProductPage + TanStackDeferredHydration
-        ├── router.tsx
-        ├── shared.module.css
-        └── styles.css
+├── public/                              static assets (guitar images, favicon)
+└── src/
+    ├── carousel/                        the carousel component being deferred
+    │   ├── RelatedGuitarsCarousel.tsx
+    │   └── RelatedGuitarsCarousel.module.css
+    ├── hydration-variants/              one wrapper per hydration strategy
+    │   ├── RegularHydration.tsx
+    │   ├── ReactSelectiveHydration.tsx
+    │   ├── TanStackDeferredHydration.tsx
+    │   └── HydrationVariant.module.css
+    ├── components/
+    │   ├── GuitarModal.tsx
+    │   ├── Header.tsx
+    │   └── ProductPage.tsx              shared product page; takes a CarouselSlot
+    ├── data/
+    │   └── guitars.ts                   PRIMARY_GUITAR + RELATED_GUITARS fixtures
+    ├── routes/
+    │   ├── __root.tsx
+    │   ├── index.tsx                    landing page with cards for each variant
+    │   ├── regular.tsx                  /regular  → ProductPage + RegularHydration
+    │   ├── react-selective.tsx          /react-selective → ProductPage + ReactSelectiveHydration
+    │   └── tanstack-deferred.tsx        /tanstack-deferred → ProductPage + TanStackDeferredHydration
+    ├── router.tsx
+    ├── shared.module.css
+    └── styles.css
 ```
 
 The three hydration-variant files are intentionally tiny — they're just
@@ -70,7 +71,7 @@ pnpm install
 pnpm dev
 ```
 
-Then open `http://localhost:3002/` (or whatever port Vite landed on). The
+Then open `http://localhost:3000/` (or whatever port Vite landed on). The
 landing page links into each of the three variant routes:
 
 - `/regular` — baseline eager hydration
@@ -85,7 +86,7 @@ The header also links to each variant for easy switching.
 pnpm build
 ```
 
-Builds the app (Vite + Nitro) into `ts-deferred-hydration/.output/`.
+Builds the app (Vite + Nitro) into `.output/`.
 
 ---
 
