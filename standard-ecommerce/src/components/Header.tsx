@@ -16,7 +16,7 @@ export default function Header() {
           </span>
           <span className={styles.brandText}>
             <span className={styles.brandTitle}>Island Vibes</span>
-            <span className={styles.brandSub}>Guitar Co.</span>
+            <span className={styles.brandSub}>Standard</span>
           </span>
         </Link>
 
@@ -33,15 +33,6 @@ export default function Header() {
           <a href="#collection" className={styles.navLink}>
             Collection
           </a>
-          <Link
-            to="/about"
-            className={styles.navLink}
-            activeProps={{
-              className: clsx(styles.navLink, styles.navLinkActive),
-            }}
-          >
-            Our Story
-          </Link>
         </div>
 
         <div className={styles.actions}>

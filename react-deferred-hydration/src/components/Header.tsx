@@ -16,7 +16,7 @@ export default function Header() {
           </span>
           <span className={styles.brandText}>
             <span className={styles.brandTitle}>Island Vibes</span>
-            <span className={styles.brandSub}>TS Deferred Hydration</span>
+            <span className={styles.brandSub}>React Deferred Hydration</span>
           </span>
         </Link>
 

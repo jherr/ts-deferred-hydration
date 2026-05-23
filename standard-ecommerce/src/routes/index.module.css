@@ -164,6 +164,20 @@
   backdrop-filter: blur(4px);
 }
 
+:root[data-theme="dark"] .heroBadge {
+  border-color: rgba(141, 229, 219, 0.32);
+  background-color: rgba(13, 28, 32, 0.75);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .heroBadge {
+    border-color: rgba(141, 229, 219, 0.32);
+    background-color: rgba(13, 28, 32, 0.75);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  }
+}
+
 /* Hero info column */
 
 .heroInfo {

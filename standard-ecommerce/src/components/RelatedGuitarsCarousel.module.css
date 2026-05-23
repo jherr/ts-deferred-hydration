@@ -212,6 +212,18 @@
   backdrop-filter: blur(4px);
 }
 
+:root[data-theme="dark"] .badge {
+  border-color: rgba(141, 229, 219, 0.32);
+  background-color: rgba(13, 28, 32, 0.75);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .badge {
+    border-color: rgba(141, 229, 219, 0.32);
+    background-color: rgba(13, 28, 32, 0.75);
+  }
+}
+
 .cardBody {
   display: flex;
   flex: 1;

@@ -20,7 +20,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Island Vibes — TS Deferred Hydration',
+        title: 'Island Vibes — React Deferred Hydration',
       },
     ],
     links: [

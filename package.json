@@ -1,0 +1,17 @@
+{
+  "name": "ts-deferred-hydration-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "install:all": "pnpm -C standard-ecommerce install && pnpm -C react-deferred-hydration install && pnpm -C ts-deferred-hydration install",
+    "dev": "concurrently --kill-others --restart-tries 0 --names \"standard,react,ts\" --prefix-colors \"cyan,magenta,yellow\" \"pnpm -C standard-ecommerce dev\" \"pnpm -C react-deferred-hydration dev\" \"pnpm -C ts-deferred-hydration dev\"",
+    "dev:standard": "pnpm -C standard-ecommerce dev",
+    "dev:react": "pnpm -C react-deferred-hydration dev",
+    "dev:ts": "pnpm -C ts-deferred-hydration dev",
+    "build": "pnpm -C standard-ecommerce build && pnpm -C react-deferred-hydration build && pnpm -C ts-deferred-hydration build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
