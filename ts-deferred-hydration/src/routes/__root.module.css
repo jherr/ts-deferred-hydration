@@ -1,0 +1,10 @@
+.body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-wrap: anywhere;
+}
+
+.body ::selection {
+  background-color: rgba(79, 184, 178, 0.24);
+}

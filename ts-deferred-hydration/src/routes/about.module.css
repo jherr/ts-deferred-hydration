@@ -1,0 +1,44 @@
+.main {
+  composes: pageWrap from "../shared.module.css";
+  padding-inline: 1rem;
+  padding-block: 3rem;
+}
+
+.card {
+  composes: islandShell from "../shared.module.css";
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .card {
+    padding: 2rem;
+  }
+}
+
+.kicker {
+  composes: islandKicker from "../shared.module.css";
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  composes: displayTitle from "../shared.module.css";
+  margin-bottom: 0.75rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--sea-ink);
+}
+
+@media (min-width: 40rem) {
+  .title {
+    font-size: 3rem;
+  }
+}
+
+.body {
+  max-width: 48rem;
+  font-size: 1rem;
+  line-height: 2;
+  color: var(--sea-ink-soft);
+  margin: 0;
+}
