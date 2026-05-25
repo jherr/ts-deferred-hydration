@@ -1,6 +1,6 @@
 # Deferred Hydration: TanStack vs. React-only
 
-A single TanStack Start app that demos **three** different ways to hydrate the
+A single TanStack Start app that demos **four** different ways to hydrate the
 same "Guitars You Might Also Like" carousel on an e-commerce product page.
 
 The carousel is deliberately placed **above the fold**, directly under the
@@ -10,7 +10,7 @@ makes the hydration timing obvious on camera without scrolling.
 
 The point of the comparison is to isolate **one variable** — the hydration
 primitive — while keeping the UI, styles, data, and component graph identical
-across all three variants.
+across all four variants.
 
 ## TL;DR
 
@@ -18,9 +18,10 @@ across all three variants.
 | --- | --- | --- | --- |
 | `/regular` | Eager (default React 19 + TanStack Start) | Yes | Immediately, with the rest of the page |
 | `/react-selective` | `React.lazy` + `<Suspense>` + selective hydration | No | Automatically, but at lower priority than other work; bumps to front on click |
+| `/react-conditional` | `React.lazy` + `<Suspense>` + DIY `use(promise)` intent gate | No | Only after pointer/focus/click intent fires inside the boundary (manual) |
 | `/tanstack-deferred` | TanStack `<Hydrate when={interaction()} prefetch={visible()} />` | No | Only after pointer/focus/click intent fires inside the boundary |
 
-All three render the same product page with the same hero, specs, related-guitars
+All four render the same product page with the same hero, specs, related-guitars
 carousel, reviews, and modal. The only intentional difference is which hydration
 wrapper renders the carousel.
 
@@ -42,6 +43,7 @@ ts-deferred-hydration/                  project root (single TanStack Start app)
     ├── hydration-variants/              one wrapper per hydration strategy
     │   ├── RegularHydration.tsx
     │   ├── ReactSelectiveHydration.tsx
+    │   ├── ReactConditionalHydration.tsx
     │   ├── TanStackDeferredHydration.tsx
     │   └── HydrationVariant.module.css
     ├── components/
@@ -57,13 +59,14 @@ ts-deferred-hydration/                  project root (single TanStack Start app)
     │   ├── index.tsx                    landing page with cards for each variant
     │   ├── regular.tsx                  /regular  → ProductPage + RegularHydration
     │   ├── react-selective.tsx          /react-selective → ProductPage + ReactSelectiveHydration
+    │   ├── react-conditional.tsx        /react-conditional → ProductPage + ReactConditionalHydration
     │   └── tanstack-deferred.tsx        /tanstack-deferred → ProductPage + TanStackDeferredHydration
     ├── router.tsx
     ├── shared.module.css
     └── styles.css
 ```
 
-The three hydration-variant files are intentionally tiny — they're just
+The four hydration-variant files are intentionally tiny — they're just
 wrappers around the same `RelatedGuitarsCarousel`, plus a small status chip
 that flips from `dehydrated` to `hydrated` so you can see what's happening on
 screen.
@@ -93,10 +96,11 @@ pnpm dev
 ```
 
 Then open `http://localhost:3000/` (or whatever port Vite landed on). The
-landing page links into each of the three variant routes:
+landing page links into each of the four variant routes:
 
 - `/regular` — baseline eager hydration
 - `/react-selective` — `React.lazy` + `<Suspense>` selective hydration
+- `/react-conditional` — `React.lazy` + `<Suspense>` + DIY `use(promise)` intent gate
 - `/tanstack-deferred` — TanStack `<Hydrate when={interaction()} prefetch={visible()} />`
 
 The header also links to each variant for easy switching.
@@ -133,17 +137,19 @@ section so you can see hydration state on screen:
 
 - **`/regular`** chip: `Carousel: hydrated (eager)` — always
 - **`/react-selective`** chip: `Carousel: dehydrated (selective hydration)` → `Carousel: hydrated`
+- **`/react-conditional`** chip: `Carousel: dehydrated (waiting for intent (DIY))` → `Carousel: hydrated`
 - **`/tanstack-deferred`** chip: `Carousel: dehydrated (waiting for intent)` → `Carousel: hydrated`
 
 Each deferred variant also logs to the browser console when its hydration
 callback fires:
 
 - React selective: `[react-lazy] RelatedGuitarsCarousel hydrated`
+- React conditional: `[react-conditional] RelatedGuitarsCarousel hydrated`
 - TanStack: `[tanstack-hydrate] RelatedGuitarsCarousel hydrated`
 
 ---
 
-## The three variants
+## The four variants
 
 ### 1. `RegularHydration` — baseline (`/regular`)
 
@@ -202,7 +208,96 @@ will hydrate this boundary on its own (it doesn't wait for intent). What
    React **bumps that boundary to the front of the hydration queue** and
    handles the click as soon as the chunk is in.
 
-### 3. `TanStackDeferredHydration` — TanStack `<Hydrate>` (`/tanstack-deferred`)
+### 3. `ReactConditionalHydration` — DIY intent gate (`/react-conditional`)
+
+Pure React, but explicitly mimicking what `<Hydrate>` does. The lazy + Suspense
+foundation is the same as variant 2, with one extra layer: a hand-rolled
+`HydrationGate` that suspends on a promise we control until pointer / focus /
+click intent fires on the wrapper.
+
+```tsx
+import { Suspense, lazy, use, useEffect, useRef, useState } from 'react'
+
+const LazyCarousel = lazy(() => import('../carousel/RelatedGuitarsCarousel'))
+
+function HydrationGate({ gate, children }) {
+  // SSR renders straight through; only the client blocks on the gate.
+  if (typeof window !== 'undefined') use(gate)
+  return <>{children}</>
+}
+
+export default function ReactConditionalHydration({ guitars, onSelect }) {
+  const wrapRef = useRef(null)
+  const gateRef = useRef(null)
+  if (!gateRef.current) {
+    let resolve
+    const promise = new Promise((r) => (resolve = r))
+    gateRef.current = { promise, resolve, resolved: false }
+  }
+
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el || gateRef.current.resolved) return
+    const onIntent = () => {
+      if (gateRef.current.resolved) return
+      gateRef.current.resolved = true
+      gateRef.current.resolve()
+    }
+    const events = ['focusin', 'pointerenter', 'click']
+    events.forEach((e) => el.addEventListener(e, onIntent, true))
+    return () => events.forEach((e) => el.removeEventListener(e, onIntent, true))
+  }, [])
+
+  return (
+    <div ref={wrapRef}>
+      <Suspense fallback={null}>
+        <HydrationGate gate={gateRef.current.promise}>
+          <LazyCarousel guitars={guitars} onSelect={onSelect} />
+        </HydrationGate>
+      </Suspense>
+    </div>
+  )
+}
+```
+
+What you're looking at:
+
+- **The wrapper hydrates eagerly** (it's outside the suspended boundary), so
+  its `useEffect` runs while the SSR'd carousel HTML inside is still
+  un-hydrated. The wrapper attaches `pointerenter` / `focusin` / `click`
+  listeners on itself at the capture phase.
+- **`use(gate)`** is called only on the client. SSR streams the carousel HTML
+  normally; on the client, the gate suspends the boundary, so React preserves
+  the SSR DOM and skips attaching handlers to it. (React 19's `use()` is one
+  of the few APIs that's *legal* to call conditionally, which is what makes
+  this pattern viable.)
+- **First matching intent event flips the gate.** `use(gate)` returns,
+  `React.lazy` then suspends on the chunk fetch, and once that resolves the
+  boundary hydrates against the SSR HTML.
+
+This variant exists to make a specific point: **you absolutely can build
+"hydrate on intent" with React's own APIs.** It's just DIY. You're rebuilding
+the bookkeeping that `<Hydrate>` does for you (the gate, the listeners on a
+wrapper, the SSR-vs-client branch, the chunk split). And it inherits the same
+SSR + CSS-modules problem documented below — the carousel renders unstyled
+between SSR paint and the lazy chunk landing, because `React.lazy` subtrees
+don't get their CSS chunks hoisted into `<head>`.
+
+What's deliberately **not** here, vs. `<Hydrate>`:
+
+- **No event replay.** TanStack's `<Hydrate>` re-dispatches the original
+  click after hydration so the user's first click "just works". The DIY gate
+  triggers hydration but the original click is lost — the user has to click
+  again to actually scroll / open the modal. (On desktop, `pointerenter`
+  usually fires before `click`, so this is rarely noticeable; on touch
+  devices, the first tap is "wasted" on triggering hydration.)
+- **No prefetch-on-visible.** `<Hydrate prefetch={visible()} />` warms the
+  chunk in the background; the DIY gate only fetches when the gate resolves,
+  so there's a perceptible delay between intent and interactivity if the
+  chunk is large or the network is slow.
+- **No SSR CSS hoisting.** Same caveat as variant 2.
+
+### 4. `TanStackDeferredHydration` — TanStack `<Hydrate>` (`/tanstack-deferred`)
 
 Uses TanStack Start's first-party `<Hydrate>` primitive:
 
@@ -258,14 +353,19 @@ Inspect the SSR `<head>` of each route in production:
 | --- | --- | --- |
 | `/regular` | ✓ `RelatedGuitarsCarousel-*.css` | ✓ preloaded |
 | `/react-selective` | ✗ **missing** | ✗ (deferred — correct) |
+| `/react-conditional` | ✗ **missing** (same `React.lazy` tax) | ✗ (deferred — correct) |
 | `/tanstack-deferred` | ✓ `RelatedGuitarsCarousel-*.css` (hoisted by `<Hydrate>`) | ✗ (deferred — correct) |
 
-Result on `/react-selective`: the carousel HTML lands in the document with
-class names that have no corresponding CSS until the lazy JS chunk loads
-and triggers a runtime stylesheet injection. Between SSR paint and lazy
-chunk load, the carousel renders **completely unstyled** — no rounded card,
-no padding, no grid, no scroll buttons, cards collapsed into a vertical
-flow.
+Result on `/react-selective` (and `/react-conditional`, for the same
+reason): the carousel HTML lands in the document with class names that have
+no corresponding CSS until the lazy JS chunk loads and triggers a runtime
+stylesheet injection. Between SSR paint and lazy chunk load, the carousel
+renders **completely unstyled** — no rounded card, no padding, no grid, no
+scroll buttons, cards collapsed into a vertical flow.
+
+On `/react-conditional` the effect is even more pronounced because the lazy
+chunk is *also* gated on intent: the carousel sits in the document
+unstyled, indefinitely, until the user actually hovers / focuses / clicks.
 
 You can reproduce it deterministically by disabling JavaScript in DevTools
 (so you only see the SSR output, no runtime CSS injection) and comparing
@@ -284,11 +384,12 @@ server-rendered chunks → their CSS deps.
 - TanStack Start solves it for `<Hydrate>` boundaries (which is why
   `/tanstack-deferred` ships the carousel CSS even though it withholds the
   JS preload), but **does not** trace CSS deps for vanilla `React.lazy`
-  subtrees.
+  subtrees — and that's exactly what both `/react-selective` and
+  `/react-conditional` use under the hood.
 
-So this is a second tax on the pure-React deferral story, on top of the
-"order, not whether" caveat. The React-only path gets you the bundle
-split, but in production you also have to either accept a styling cliff
+So this is a second tax on the pure-React deferral story. The React-only
+paths get you the bundle split (and, with the DIY gate, even "hydrate on
+intent"), but in production you also have to either accept a styling cliff
 or work around it manually.
 
 ### Workarounds
@@ -315,7 +416,7 @@ the moment the SSR HTML paints."
 
 ## Verifying each variant
 
-Open DevTools, then for each of the three routes:
+Open DevTools, then for each of the four routes:
 
 ### 1. SSR is preserved
 
@@ -337,6 +438,11 @@ bundled into the route entry.
 - **`/tanstack-deferred`**: hover or click anywhere in the carousel area.
   Chip flips to `Carousel: hydrated`. Console logs
   `[tanstack-hydrate] RelatedGuitarsCarousel hydrated`.
+- **`/react-conditional`**: same intent UX as `/tanstack-deferred` — hover
+  or click and the chip flips to `Carousel: hydrated`. Console logs
+  `[react-conditional] RelatedGuitarsCarousel hydrated`. Difference vs.
+  TanStack: the first click that triggers hydration is **not** replayed
+  against the now-interactive carousel; on touch you'll need a second tap.
 - **`/react-selective`**: chip flips to `Carousel: hydrated` on its own
   (usually within a few hundred ms on a fast connection). Console logs
   `[react-lazy] RelatedGuitarsCarousel hydrated`. To see the dehydrated
@@ -352,17 +458,46 @@ After hydration, scroll buttons work, and clicking a card opens the
 
 ## Could we do "hydrate on interaction" in pure React?
 
-Short answer: **not with React's own public APIs.** `react-dom` 19 doesn't
-expose anything equivalent to `<Hydrate when={interaction()}>`. Selective
-hydration is about **order** (React re-prioritizes boundaries the user
-clicks on), not **whether** — once the lazy chunk is on the client, React
-will hydrate it on its own schedule, and you can't tell it "hold off."
+Short answer: **yes — and `/react-conditional` is the proof.** It's just DIY.
 
-The honest framing for the comparison is: **the React-only story is `lazy`
-+ `<Suspense>` + selective hydration**, which gets you smaller bundles and
-re-prioritization on click. **The "never until intent" story belongs to
-the framework** (TanStack `<Hydrate>`, Astro islands, Qwik resumability,
-Marko, Fresh's `client:*` directives).
+`react-dom` 19 doesn't expose anything equivalent to
+`<Hydrate when={interaction()}>` directly, but the building blocks are all
+there:
+
+- `React.lazy` to split the chunk out of the route bundle.
+- `<Suspense>` to keep the SSR HTML in place while the boundary is
+  un-hydrated.
+- `use(promise)` — legal to call conditionally, so you can suspend the
+  client only — to gate hydration on a promise you own.
+- A plain `useEffect` on a wrapper outside the boundary to attach
+  pointer / focus / click listeners and resolve that promise.
+
+The `ReactConditionalHydration` variant wires those four pieces together in
+~60 lines. So the React-only ceiling isn't actually
+"selective hydration only" — it's "selective hydration for free, and
+hydrate-on-intent if you're willing to write the gate yourself."
+
+What `<Hydrate>` (or Astro `client:visible`, Qwik resumability, Marko, Fresh
+`client:*`, etc.) actually buys you on top of the DIY version is the parts
+the demo *omits*:
+
+- **Event replay** — re-dispatching the original click after hydration so
+  the user's first tap actually does something.
+- **A separate `prefetch` strategy** — warming the chunk in the background
+  (`prefetch={visible()}`, `idle()`, etc.) so by the time intent fires the
+  chunk is already on disk and hydration is instantaneous.
+- **SSR CSS chunk hoisting** for boundaries the framework knows about —
+  the missing-`<link>`-tag problem documented above only bites the React
+  paths because TanStack doesn't trace CSS deps for vanilla `React.lazy`
+  subtrees.
+- **Declarative ergonomics** — `<Hydrate when={interaction()} prefetch={visible()}>`
+  vs. a `useRef` + `useEffect` + `use(promise)` + manual SSR-vs-client
+  branch.
+
+So the more honest framing for the comparison is: **pure React gets you to
+deferred-on-intent hydration**, but the framework primitive is the one that
+makes it production-grade (replay, prefetch, CSS hoisting) instead of "yes
+technically, but you'll regret it under load."
 
 ## Tech stack
 

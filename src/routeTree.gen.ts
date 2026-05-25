@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TanstackDeferredRouteImport } from './routes/tanstack-deferred'
 import { Route as RegularRouteImport } from './routes/regular'
 import { Route as ReactSelectiveRouteImport } from './routes/react-selective'
+import { Route as ReactConditionalRouteImport } from './routes/react-conditional'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TanstackDeferredRoute = TanstackDeferredRouteImport.update({
@@ -29,6 +30,11 @@ const ReactSelectiveRoute = ReactSelectiveRouteImport.update({
   path: '/react-selective',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReactConditionalRoute = ReactConditionalRouteImport.update({
+  id: '/react-conditional',
+  path: '/react-conditional',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/react-conditional': typeof ReactConditionalRoute
   '/react-selective': typeof ReactSelectiveRoute
   '/regular': typeof RegularRoute
   '/tanstack-deferred': typeof TanstackDeferredRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/react-conditional': typeof ReactConditionalRoute
   '/react-selective': typeof ReactSelectiveRoute
   '/regular': typeof RegularRoute
   '/tanstack-deferred': typeof TanstackDeferredRoute
@@ -50,20 +58,38 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/react-conditional': typeof ReactConditionalRoute
   '/react-selective': typeof ReactSelectiveRoute
   '/regular': typeof RegularRoute
   '/tanstack-deferred': typeof TanstackDeferredRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/react-selective' | '/regular' | '/tanstack-deferred'
+  fullPaths:
+    | '/'
+    | '/react-conditional'
+    | '/react-selective'
+    | '/regular'
+    | '/tanstack-deferred'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/react-selective' | '/regular' | '/tanstack-deferred'
-  id: '__root__' | '/' | '/react-selective' | '/regular' | '/tanstack-deferred'
+  to:
+    | '/'
+    | '/react-conditional'
+    | '/react-selective'
+    | '/regular'
+    | '/tanstack-deferred'
+  id:
+    | '__root__'
+    | '/'
+    | '/react-conditional'
+    | '/react-selective'
+    | '/regular'
+    | '/tanstack-deferred'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ReactConditionalRoute: typeof ReactConditionalRoute
   ReactSelectiveRoute: typeof ReactSelectiveRoute
   RegularRoute: typeof RegularRoute
   TanstackDeferredRoute: typeof TanstackDeferredRoute
@@ -92,6 +118,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReactSelectiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/react-conditional': {
+      id: '/react-conditional'
+      path: '/react-conditional'
+      fullPath: '/react-conditional'
+      preLoaderRoute: typeof ReactConditionalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ReactConditionalRoute: ReactConditionalRoute,
   ReactSelectiveRoute: ReactSelectiveRoute,
   RegularRoute: RegularRoute,
   TanstackDeferredRoute: TanstackDeferredRoute,

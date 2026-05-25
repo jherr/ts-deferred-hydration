@@ -5,6 +5,7 @@ import styles from './Header.module.css'
 const VARIANT_LINKS = [
   { to: '/regular', label: 'Regular' },
   { to: '/react-selective', label: 'React Selective' },
+  { to: '/react-conditional', label: 'React Conditional' },
   { to: '/tanstack-deferred', label: 'TanStack <Hydrate>' },
 ] as const
 
